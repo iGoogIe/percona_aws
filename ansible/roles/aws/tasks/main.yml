@@ -22,8 +22,29 @@
 
   - debug: var=key_check
 
-  
-  
+  - name: Map over Subnets to get subnet_ids
+    set_fact: 
+      subnet_ids: "{{subnet_info.subnets | map(attribute='id') | list }}"
+    loop: "{{subnet_info.subnets}}"
 
-  # write key to file
+  - debug: var=subnet_ids
 
+  # trim 3 subnets from the list
+  - name: Trim subnet_ids
+    set_fact:
+      subnet_ids: "{{subnet_ids[:-3]}}"
+
+  # create ec2 instance in each subnet i.e subnet_ids list
+  - name: Create EC2s by looping over subnet_ids # Ensures Multi-AZ instances and better protection from outages
+    delegate_to: localhost
+    amazon.aws.ec2:
+      key_name: "{{ key_name }}"
+      instance_type: t2.micro 
+      image: ami-0279c3b3186e54acd
+      region: "{{ region }}"
+      wait: yes
+      # group: webserver
+      count: 1
+      vpc_subnet_id: "{{item}}"
+      assign_public_ip: no
+    with_items: "{{subnet_ids}}"
