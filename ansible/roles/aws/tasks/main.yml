@@ -1,0 +1,29 @@
+---
+  - name: Get VPC ID
+    amazon.aws.ec2_vpc_subnet_info:
+      region: "{{region}}"
+    register: subnet_info
+    failed_when: "{{subnet_info.subnets | length }} == 0"
+
+  - name: Debug Subnets
+    debug:
+      var: subnet_info
+
+  - name: Set VPC ID from subnet_info
+    set_fact:
+      vpc_id: "{{subnet_info.subnets[0].vpc_id}}"
+
+  - name: Check if key pair exists 
+    amazon.aws.ec2_key:
+      name: "{{ key_name }}"
+      state: present
+    register: key_check
+    failed_when: "{{key_check.failed}} == true"
+
+  - debug: var=key_check
+
+  
+  
+
+  # write key to file
+

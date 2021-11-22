@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  ignore_errors: no
+  ignore_unreachable: no
+  roles:
+    - ~/percona_aws/ansible/roles/aws/
