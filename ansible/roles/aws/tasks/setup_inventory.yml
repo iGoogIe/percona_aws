@@ -1,0 +1,7 @@
+---
+  - name: Write public_ips to inventory file
+    shell: |
+      echo "node{{index | int + 1}} ansible_host={{item}} ansible_user=ubuntu ansible_ssh_port=22 ansible_ssh_private_key_file={{key_path}}" >> ~/percona_aws/ansible/aws_inventory.yml
+    loop: "{{public_ips}}"
+    loop_control:
+      index_var: index

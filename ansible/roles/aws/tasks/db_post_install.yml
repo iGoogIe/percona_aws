@@ -1,0 +1,48 @@
+---
+  - name: Stop MySql
+    # become: yes
+    service:
+      name: mysql
+      state: stopped
+
+  - name: Set Fact for comma delimited IPs
+    set_fact:
+      string_of_ips: "{{public_ips | join(',')}}"
+    
+  - debug: var=string_of_ips
+
+  - name: Replace cluster address with proper IPs on Node1 based on docs
+    become: yes
+    ansible.builtin.lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: "^wsrep_cluster_address"
+      line: "wsrep_cluster_address=gcomm://{{string_of_ips}}"
+      owner: root
+      group: root
+      mode: '0644'
+    when: inventory_hostname == 'node1'
+
+  - name: Debug hostname and ip
+    debug:
+      var: inventory_hostname,ansible_ssh_host
+    when: inventory_hostname == 'node1'
+
+  - name: Replace wsrep_node_name with proper node name
+    become: yes
+    ansible.builtin.lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: "^wsrep_node_name"
+      line: "wsrep_node_name={{inventory_hostname}}"
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Replace wsrep_node_address with actual IP of node
+    become: yes
+    ansible.builtin.lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: "^#wsrep_node_address"
+      line: "wsrep_node_address={{ansible_ssh_host}}"
+      owner: root
+      group: root
+      mode: '0644'

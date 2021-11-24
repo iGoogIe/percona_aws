@@ -1,0 +1,24 @@
+---
+- name: Get VPC ID
+  amazon.aws.ec2_vpc_subnet_info:
+    region: "{{region}}"
+  register: subnet_info
+  failed_when: "{{subnet_info.subnets | length }} == 0"
+
+- name: Create Security Group with port 22 enabled
+  ec2_group:
+    name: "DB_Cluster_SG"
+    description: "Security Group With Port 22 enabled by default"
+    vpc_id: "{{subnet_info.subnets[0].vpc_id}}"
+    region: "{{ region }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+  register: sg_info
+  failed_when: "{{sg_info.failed}} == true"
+
+- name: Set fact for Security Group ID
+  set_fact:
+    security_group_id: "{{sg_info.group_id}}"

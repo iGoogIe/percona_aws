@@ -1,3 +1,5 @@
 ---
 key_name: percona_key
 region: us-east-1
+security_group: sgr-0fd577015c883ad53
+key_path: ~/.ssh/percona.pem

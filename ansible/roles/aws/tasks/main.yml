@@ -1,50 +1,30 @@
 ---
-  - name: Get VPC ID
-    amazon.aws.ec2_vpc_subnet_info:
-      region: "{{region}}"
-    register: subnet_info
-    failed_when: "{{subnet_info.subnets | length }} == 0"
+- name: Import create_security_group
+  import_tasks: create_security_group.yml
+  tags:
+    - sg
+    - never
 
-  - name: Debug Subnets
-    debug:
-      var: subnet_info
+- name: Import create_base_ec2s
+  import_tasks: create_base_ec2s.yml
+  tags:
+    - ec2
+    - never
 
-  - name: Set VPC ID from subnet_info
-    set_fact:
-      vpc_id: "{{subnet_info.subnets[0].vpc_id}}"
+- name: Setup Ansible Inventory
+  import_tasks: setup_inventory.yml
+  tags:
+    - inventory
+    - never
 
-  - name: Check if key pair exists 
-    amazon.aws.ec2_key:
-      name: "{{ key_name }}"
-      state: present
-    register: key_check
-    failed_when: "{{key_check.failed}} == true"
+- name: Import percona_bootrap
+  import_tasks: percona_bootstrap.yml
+  tags:
+    - bootstrap
+    - never
 
-  - debug: var=key_check
-
-  - name: Map over Subnets to get subnet_ids
-    set_fact: 
-      subnet_ids: "{{subnet_info.subnets | map(attribute='id') | list }}"
-    loop: "{{subnet_info.subnets}}"
-
-  - debug: var=subnet_ids
-
-  # trim 3 subnets from the list
-  - name: Trim subnet_ids
-    set_fact:
-      subnet_ids: "{{subnet_ids[:-3]}}"
-
-  # create ec2 instance in each subnet i.e subnet_ids list
-  - name: Create EC2s by looping over subnet_ids # Ensures Multi-AZ instances and better protection from outages
-    delegate_to: localhost
-    amazon.aws.ec2:
-      key_name: "{{ key_name }}"
-      instance_type: t2.micro 
-      image: ami-0279c3b3186e54acd
-      region: "{{ region }}"
-      wait: yes
-      # group: webserver
-      count: 1
-      vpc_subnet_id: "{{item}}"
-      assign_public_ip: no
-    with_items: "{{subnet_ids}}"
+- name: Import db_post_install
+  import_tasks: db_post_install.yml
+  tags:
+    - post_install
+    - never
