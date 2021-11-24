@@ -1,4 +1,15 @@
 ---
+  - name: Get IPs from inventory file
+    delegate_to: localhost
+    shell: |
+      grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' aws_inventory.yml
+    register: result
+  
+  - name: Set fact for public_ips from inventory grep # could be jinja but we will grep it for now
+    set_fact:
+      public_ips: "{{result.stdout_lines}}"
+
+  - debug: var=public_ips
   - name: Stop MySql
     # become: yes
     service:
@@ -22,10 +33,10 @@
       mode: '0644'
     when: inventory_hostname == 'node1'
 
-  - name: Debug hostname and ip
-    debug:
-      var: inventory_hostname,ansible_ssh_host
-    when: inventory_hostname == 'node1'
+  # - name: Debug hostname and ip
+  #   debug:
+  #     var: inventory_hostname,ansible_ssh_host
+  #   when: inventory_hostname == 'node1'
 
   - name: Replace wsrep_node_name with proper node name
     become: yes
