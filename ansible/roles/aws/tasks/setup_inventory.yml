@@ -5,3 +5,10 @@
     loop: "{{public_ips}}"
     loop_control:
       index_var: index
+
+  - name: Write private ips to inventory file
+    shell: |
+      echo "{{item}}" >> ~/percona_aws/ansible/private_ips.yml
+    loop: "{{private_ips}}"
+    loop_control:
+      index_var: index

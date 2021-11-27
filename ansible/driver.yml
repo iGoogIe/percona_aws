@@ -2,5 +2,6 @@
 - hosts: "{{target_hosts}}"
   ignore_errors: no
   ignore_unreachable: no
+  gather_facts: yes
   roles:
     - ~/percona_aws/ansible/roles/aws/

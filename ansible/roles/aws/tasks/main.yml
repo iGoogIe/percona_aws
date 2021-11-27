@@ -1,12 +1,12 @@
 ---
 - name: Import create_security_group
-  import_tasks: create_security_group.yml
+  import_tasks: aws/create_security_group.yml
   tags:
     - sg
     - never
 
 - name: Import create_base_ec2s
-  import_tasks: create_base_ec2s.yml
+  import_tasks: aws/create_base_ec2s.yml
   tags:
     - ec2
     - never
@@ -18,13 +18,55 @@
     - never
 
 - name: Import percona_bootrap
-  import_tasks: percona_bootstrap.yml
+  import_tasks: bootstrap/percona.yml
   tags:
     - bootstrap
     - never
 
+# - name: Stage Certs and Add to mysqld.cnf
+#   import_tasks: stage_certs.yml
+#   tags:
+#     - certs
+#     - never
+
 - name: Import db_post_install
-  import_tasks: db_post_install.yml
+  import_tasks: bootstrap/db_post_install.yml
   tags:
     - post_install
     - never
+
+- name: Import bootstrap_node1
+  import_tasks: bootstrap/bootstrap_node1.yml
+  tags:
+    - bootstrap_n1
+    - never
+
+- name: Import setup_mysql_creds
+  import_tasks: mysql/setup_mysql_creds.yml
+  tags:
+    - mysql_creds
+    - never
+
+- name: Import create_db
+  import_tasks: mysql/create_db.yml
+  tags:
+    - create_db
+    - never
+
+- name: Import table_data
+  import_tasks: mysql/table_data.yml
+  tags:
+    - table_data
+    - never
+
+- name: Import cleanup_files
+  import_tasks: cleanup/remove_files.yml
+  tags:
+    - cleanup
+    - never
+
+# - name: test
+#   import_tasks: test.yml
+#   tags:
+#     - test
+#     - never 

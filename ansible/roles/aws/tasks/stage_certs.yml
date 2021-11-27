@@ -1,0 +1,31 @@
+# ---
+#   - name: Stage certs for replication
+#     become: yes
+#     copy:
+#       src: "~/percona_aws/certs/{{item.name}}"
+#       dest: "/var/lib/mysql/{{item.name}}"
+#       owner: mysql
+#       group: mysql
+#       mode: "{{item.mode}}"
+#     loop: "{{certs}}"
+#     when: inventory_hostname != 'node1'
+
+#   - name: Add cert details in sst block
+#     become: yes
+#     blockinfile:
+#       path: /etc/mysql/mysql.conf.d/mysqld.cnf
+#       insertafter: "pid-file=/var/run/mysqld/mysqld.pid"
+#       block: |
+#         [sst]
+#         encrypt=4
+#         ssl-key=/var/lib/mysql/server-key.pem
+#         ssl-ca=/var/lib/mysql/ca.pem
+#         ssl-cert=/var/lib/mysql/server-cert.pem
+
+#   - name: Add wsrep_provider_options for replication certs in mysqld block
+#     become: yes
+#     ansible.builtin.lineinfile:
+#       path: /etc/mysql/mysql.conf.d/mysqld.cnf
+#       insertbefore: "server-id=1"
+#       line: 'wsrep_provider_options="socket.ssl_key=/var/lib/mysql/server-key.pem;socket.ssl_cert=/var/lib/mysql/server-cert.pem;socket.ssl_ca=/var/lib/mysql/ca.pem"'
+#       mode: '0644'

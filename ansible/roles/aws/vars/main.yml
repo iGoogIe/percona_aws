@@ -3,3 +3,13 @@ key_name: percona_key
 region: us-east-1
 security_group: sgr-0fd577015c883ad53
 key_path: ~/.ssh/percona.pem
+percona_password: "{{ lookup('env', 'PERCONA_PASSWORD')}}"
+certs:
+  - name: server-key.pem
+    mode: 600
+  - name: ca.pem
+    mode: 644
+  - name: server-cert.pem
+    mode: 600
+local_user: jeyfarmer
+db_name: devopstest

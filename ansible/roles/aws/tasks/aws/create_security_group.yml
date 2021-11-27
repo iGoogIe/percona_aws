@@ -5,10 +5,10 @@
   register: subnet_info
   failed_when: "{{subnet_info.subnets | length }} == 0"
 
-- name: Create Security Group with port 22 enabled
+- name: Create Security Group with rules
   ec2_group:
     name: "DB_Cluster_SG"
-    description: "Security Group With Port 22 enabled by default"
+    description: "Security Group for percona nodes"
     vpc_id: "{{subnet_info.subnets[0].vpc_id}}"
     region: "{{ region }}"
     rules:
@@ -16,6 +16,23 @@
         from_port: 22
         to_port: 22
         cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 3306
+        to_port: 3306
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 4568
+        to_port: 4568
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 4567
+        to_port: 4567
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 4444
+        to_port: 4444
+        cidr_ip: 0.0.0.0/0
+      
   register: sg_info
   failed_when: "{{sg_info.failed}} == true"
 

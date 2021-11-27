@@ -1,0 +1,8 @@
+---
+  - name: Delete files
+    file:
+      path: "~/percona_aws/ansible/{{item}}"
+      state: absent
+    with_items:
+      - aws_inventory.yml
+      - private_ips.yml

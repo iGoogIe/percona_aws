@@ -1,0 +1,43 @@
+---
+  - name: Delete my.cnf file if exists
+    delegate_to: localhost
+    file:
+      path: ~/percona_aws/ansible/roles/aws/files/my.cnf
+      state: absent
+    when: inventory_hostname == 'node1'
+
+
+  - name: Create file inside roles/aws/files/
+    delegate_to: localhost
+    file:
+      path: ~/percona_aws/ansible/roles/aws/files/my.cnf
+      state: touch
+      owner: "{{local_user}}"
+      group: "{{local_user}}"
+    when: inventory_hostname == 'node1'
+
+  - name: Add credentials to my.cnf
+    delegate_to: localhost
+    blockinfile:
+      path: ~/percona_aws/ansible/roles/aws/files/my.cnf
+      block: |
+        [client]
+        user=automation
+        password={{percona_password}}
+    when: inventory_hostname == 'node1'
+
+  - name: Stage my.cnf
+    become: yes
+    copy:
+      src: ~/percona_aws/ansible/roles/aws/files/my.cnf
+      dest: /home/ubuntu/.my.cnf
+      owner: "ubuntu"
+      group: "ubuntu"
+      mode: 644
+    when: inventory_hostname == 'node1'
+
+  - name: Change File Permissions
+    become: yes
+    shell: | 
+      chmod 600 /home/ubuntu/.my.cnf
+    when: inventory_hostname == 'node1'

@@ -1,29 +1,35 @@
 ---
   - name: Updates list of packages and install dependencies
-    # become: yes
+    become: yes
     shell: |
       sudo apt update
       sudo apt install -y wget gnupg2 curl lsb-release
     register: output
 
-  - debug: var=output
+  # - debug: var=output
 
   - name: Download Percona repo
-    # become: yes
+    become: yes
     shell: |
       wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
       sudo dpkg -i percona-release_latest.generic_all.deb
       sudo apt update
     register: percona_output
 
-  - debug: var=percona_output
+  # - debug: var=percona_output
 
   - name: Enable release repo for Percona XtraDB Cluster
-    # become: yes
+    become: yes
     shell: |
       sudo apt update
       sudo percona-release setup pxc80
     register: release_output
+
+  - name: Install python pysql package
+    become: yes
+    shell: |
+      sudo apt-get install python-pymysql -y
+    register: pymysql_output
 
   - name: Print next steps
     debug:

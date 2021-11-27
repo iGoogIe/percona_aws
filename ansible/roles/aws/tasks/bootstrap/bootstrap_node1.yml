@@ -1,0 +1,43 @@
+---
+  - name: Stop mysql@bootstrap.service on node1
+    become: yes
+    service:
+      name: mysql@bootstrap.service
+      state: stopped
+    when: inventory_hostname == 'node1'
+
+  - name: Get Private IPs from file
+    delegate_to: localhost
+    shell: |
+      grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' private_ips.yml
+    register: private_ip_result
+    when: inventory_hostname == 'node1'
+
+  - name: Set fact for private_ips
+    set_fact:
+      private_ips: "{{private_ip_result.stdout_lines}}"
+    when: inventory_hostname == 'node1'
+
+  - name: Set Fact for comma delimited Private IPs
+    set_fact:
+      string_of_ips: "{{private_ips | join(',')}}"
+    when: inventory_hostname == 'node1'
+
+  - name: Replace cluster address with proper IPs
+    become: yes
+    ansible.builtin.lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: "^wsrep_cluster_address"
+      line: "wsrep_cluster_address=gcomm://{{string_of_ips}}"
+      owner: root
+      group: root
+      mode: '0644'
+    when: inventory_hostname == 'node1'
+
+  # CHANGED to bootstrap service
+  - name: Start mysql service for first time on node1
+    become: yes
+    service:
+      name: mysql
+      state: started
+    when: inventory_hostname == 'node1'

@@ -1,0 +1,66 @@
+---
+  - name: Create employee Table
+    community.mysql.mysql_query:
+      login_db: "{{db_name}}"
+      query: CREATE TABLE IF NOT EXISTS employee (first_name VARCHAR(20),last_name VARCHAR(20),employee_id INT, CONSTRAINT eid_pk PRIMARY KEY (employee_id));
+    register: employee_result
+    failed_when: employee_result.failed is true
+
+  # - debug: var=employee_result
+
+  - name: Create performance Table
+    community.mysql.mysql_query:
+      login_db: "{{db_name}}"
+      query: CREATE TABLE IF NOT EXISTS performance (annual_low INT, annual_high INT, employee_id INT, CONSTRAINT p_fk PRIMARY KEY (employee_id), CONSTRAINT employee_id FOREIGN KEY (employee_id) REFERENCES employee(employee_id));
+    register: performance_result
+    failed_when: performance_result.failed is true
+
+  # - debug: var=performance_result
+
+  - name: Create skills Table
+    community.mysql.mysql_query:
+      login_db: "{{db_name}}"
+      query: CREATE TABLE IF NOT EXISTS skills (strength VARCHAR(20), weakness VARCHAR(20), employee_id INT, CONSTRAINT eip_pk PRIMARY KEY (employee_id), CONSTRAINT ts_fk FOREIGN KEY (employee_id) REFERENCES employee(employee_id));
+    register: skills_result
+    failed_when: skills_result.failed is true
+
+  # - debug: var=skills_result
+
+  - name: Insert Data into Employee Table
+    community.mysql.mysql_query:
+      login_db: "{{db_name}}"
+      query: 
+        - INSERT IGNORE INTO employee VALUES ('bob','forester',111);
+        - INSERT IGNORE INTO employee VALUES ('jim','crane',222);
+        - INSERT IGNORE INTO employee VALUES ('olivia','crate',333);
+        - INSERT IGNORE INTO employee VALUES ('jeb','tooly',444);
+        - INSERT IGNORE INTO employee VALUES ('randy','pool',555);
+      single_transaction: no
+    register: employee_insert_result
+    failed_when: employee_insert_result.failed is true
+
+  - name: Insert Data into performance Table
+    community.mysql.mysql_query:
+      login_db: "{{db_name}}"
+      query: 
+        - INSERT IGNORE INTO performance VALUES (55,66,111);
+        - INSERT IGNORE INTO performance VALUES (45,56,222);
+        - INSERT IGNORE INTO performance VALUES (20,90,333);
+        - INSERT IGNORE INTO performance VALUES (50,99,444);
+        - INSERT IGNORE INTO performance VALUES (10,15,555);
+      single_transaction: no
+    register: performance_insert_result
+    failed_when: performance_insert_result.failed is true
+
+  - name: Insert Data into skills Table
+    community.mysql.mysql_query:
+      login_db: "{{db_name}}"
+      query: 
+        - INSERT IGNORE INTO skills VALUES ("basket weaving", "sales", 111);
+        - INSERT IGNORE INTO skills VALUES ("listening", "finance", 222);
+        - INSERT IGNORE INTO skills VALUES ("coding", "training", 333);
+        - INSERT IGNORE INTO skills VALUES ("cartwheels", "leadership", 444);
+        - INSERT IGNORE INTO skills VALUES ("typing", "excel spreadsheets", 555);
+      single_transaction: no
+    register: skills_insert_result
+    failed_when: skills_insert_result.failed is true

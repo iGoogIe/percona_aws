@@ -1,0 +1,8 @@
+---
+  - name: "Create {{db_name}} DB"
+    community.mysql.mysql_db:
+      name: "{{db_name}}"
+      state: present
+    register: db_result
+    failed_when: db_result.failed is true
+    when: inventory_hostname == 'node1'
