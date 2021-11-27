@@ -1,8 +1,13 @@
 ---
   - name: Delete files
+    delegate_to: localhost
     file:
       path: "~/percona_aws/ansible/{{item}}"
       state: absent
     with_items:
       - aws_inventory.yml
       - private_ips.yml
+
+  # - name: Delete EC2s
+
+  # - name: Delete SGs
