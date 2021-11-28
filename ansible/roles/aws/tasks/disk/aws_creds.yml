@@ -1,0 +1,20 @@
+---
+  - name: Add aws_access_key to awscreds.conf
+    become: no
+    ansible.builtin.lineinfile:
+      path: /home/ubuntu/aws-scripts-mon/awscreds.conf
+      regexp: "^AWSAccessKeyId="
+      line: "AWSAccessKeyId={{aws_access_key}}"
+    register: access_key_result
+    failed_when: access_key_result.failed is true
+    when: inventory_hostname == 'node1'
+
+  - name: Add aws_secret_key to awscreds.conf
+    become: no
+    ansible.builtin.lineinfile:
+      path: /home/ubuntu/aws-scripts-mon/awscreds.conf
+      regexp: "^AWSSecretKey="
+      line: "AWSSecretKey={{aws_secret_key}}"
+    register: secret_result
+    failed_when: secret_result.failed is true
+    when: inventory_hostname == 'node1'

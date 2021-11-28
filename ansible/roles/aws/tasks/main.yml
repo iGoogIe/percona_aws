@@ -59,6 +59,26 @@
     - table_data
     - never
 
+- name: Import Create IAM Policy for Cloudwatch
+  import_tasks: aws/create_iam_policy.yml
+  tags:
+    - iam
+    - never
+
+- name: Import setup monitor for node1
+  import_tasks: disk/setup.yml
+  tags:
+    - disk
+    - never
+
+- name: Import aws_creds for credentials placement
+  import_tasks: disk/aws_creds.yml
+  tags:
+    - disk
+    - never
+
+
+#########
 - name: Import cleanup_files
   import_tasks: cleanup/cluster_teardown.yml
   tags:

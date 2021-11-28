@@ -1,0 +1,16 @@
+---
+  - name: Set fact for Cloudwatch JSON
+    set_fact:
+      cloudwatch_json: "{{ lookup('template', 'cloudwatch_policy.json') | string }}"
+
+  - name: Create Cloudwatch IAM Policy from Template
+    community.aws.iam_policy:
+      iam_type: user
+      iam_name: "{{ iam_username }}"
+      policy_name: "cloudwatch_disk_policy"
+      state: present
+      policy_json: "{{cloudwatch_json}}"
+    register: iam_policy_result
+    failed_when: iam_policy_result.failed is true
+
+  # - debug: var=iam_policy_result

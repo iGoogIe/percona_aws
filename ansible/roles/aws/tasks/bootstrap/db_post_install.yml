@@ -15,6 +15,13 @@
       name: mysql
       state: stopped
 
+  - name: Stop Bootstrap node1 Only (for idempotency)
+    become: yes
+    shell: |
+      sudo systemctl stop mysql@bootstrap.service
+    register: bootstrap_result
+    when: inventory_hostname == 'node1'
+
   - name: Set Fact for comma delimited Private IPs
     set_fact:
       string_of_ips: "{{private_ips | join(',')}}"
@@ -29,6 +36,17 @@
       group: root
       mode: '0644'
     when: inventory_hostname != 'node1'
+
+  - name: Node1 Remove cluster address to bootstrap again
+    become: yes
+    ansible.builtin.lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: "^wsrep_cluster_address"
+      line: "wsrep_cluster_address=gcomm://"
+      owner: root
+      group: root
+      mode: '0644'
+    when: inventory_hostname == 'node1'
 
   - name: Add node name
     become: yes

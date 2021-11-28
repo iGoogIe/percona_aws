@@ -1,0 +1,36 @@
+---
+  - name: Add dependencies for disk monitor
+    become: yes
+    shell: |
+      sudo apt-get install -y libwww-perl libdatetime-perl unzip
+    register: dep_result
+    failed_when: dep_result.failed is true
+    when: inventory_hostname == 'node1'
+
+  - name: Check for aws-scripts-mon dir
+    stat:
+      path: /home/ubuntu/aws-scripts-mon
+    register: aws_scripts_dir
+    when: inventory_hostname == 'node1'
+
+  - name: Get Cloudwatch Monitoring Scripts
+    become: no
+    shell: |
+      wget https://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.2.zip
+      unzip CloudWatchMonitoringScripts-1.2.2.zip
+      rm CloudWatchMonitoringScripts-1.2.2.zip
+      cd aws-scripts-mon
+      cat awscreds.template >> awscreds.conf
+    register: cw_result
+    failed_when: cw_result.failed is true
+    when: inventory_hostname == 'node1' and aws_scripts_dir.stat.exists is false
+
+  - name: Add metrics cronjob if missing
+    shell: |
+      cd /home/ubuntu/aws-scripts-mon
+      crontab -l > /home/ubuntu/aws-scripts-mon/copy_cron
+      if ! grep -q mon-put-instance-data.pl copy_cron; then
+        echo "*/5 * * * * /home/ubuntu/aws-scripts-mon/mon-put-instance-data.pl --disk-path=/ --disk-space-util --from-cron" >> copy_cron
+        crontab copy_cron
+      fi
+    when: inventory_hostname == 'node1'

@@ -30,6 +30,7 @@
     shell: |
       sudo apt-get install python-pymysql -y
     register: pymysql_output
+    when: inventory_hostname == 'node1'
 
   - name: Print next steps
     debug:
