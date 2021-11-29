@@ -1,0 +1,10 @@
+---
+  - name: Stop EC2s
+    delegate_to: localhost
+    amazon.aws.ec2:
+      region: "{{region}}"
+      instance_tags:
+          Name: "{{item}}"
+      state: stopped
+      wait: yes
+    with_items: "{{instance_names}}"

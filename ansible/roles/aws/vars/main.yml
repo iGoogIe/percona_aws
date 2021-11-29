@@ -16,3 +16,7 @@ db_name: devopstest
 iam_username: automation
 aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID')}}"
 aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY')}}"
+instance_names:
+  - node1
+  - node2
+  - node3

@@ -1,0 +1,11 @@
+---
+  - name: Start EC2s
+    delegate_to: localhost
+    amazon.aws.ec2:
+      region: "{{region}}"
+      instance_tags:
+          Name: "{{item}}"
+      state: running
+      wait: yes
+    with_items: "{{instance_names}}"
+    

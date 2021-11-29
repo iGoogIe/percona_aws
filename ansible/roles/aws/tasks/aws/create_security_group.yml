@@ -31,8 +31,7 @@
       - proto: tcp
         from_port: 4444
         to_port: 4444
-        cidr_ip: 0.0.0.0/0
-      
+        cidr_ip: 0.0.0.0/0  
   register: sg_info
   failed_when: "{{sg_info.failed}} == true"
 

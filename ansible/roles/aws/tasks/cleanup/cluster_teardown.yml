@@ -1,5 +1,5 @@
 ---
-  - name: Delete files
+  - name: Delete local files for inventory
     delegate_to: localhost
     file:
       path: "~/percona_aws/ansible/{{item}}"
@@ -8,6 +8,20 @@
       - aws_inventory.yml
       - private_ips.yml
 
-  # - name: Delete EC2s
+  - name: Get Instance IDs from AWS Tags
+    community.aws.ec2_instance_info:
+      region: "{{region}}"
+      filters:
+        "tag:Name": "{{item}}"
+    with_items: "{{instance_names}}"
+    register: ec2_info
 
-  # - name: Delete SGs
+  - name: Terminate EC2s matching Tag Names
+    delegate_to: localhost
+    amazon.aws.ec2:
+      region: "{{region}}"
+      instance_ids: "{{item.instances[0].instance_id}}"
+      state: absent
+      wait: yes
+    loop: "{{ec2_info.results}}"
+    no_log: true

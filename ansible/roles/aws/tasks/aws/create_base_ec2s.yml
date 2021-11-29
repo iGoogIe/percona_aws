@@ -20,6 +20,7 @@
     set_fact: 
       subnet_ids: "{{subnet_info.subnets | map(attribute='id') | list }}"
     loop: "{{subnet_info.subnets}}"
+    no_log: true
 
   # trim 3 subnets from the list
   - name: Trim subnet_ids
@@ -58,6 +59,7 @@
     set_fact:
       public_ips: "{{public_ips + [item.instances[0].public_ip]}}"
     with_items: "{{ec2_create.results}}"
+    no_log: true
 
   - name: Loop through and extract just the private ips
     set_fact:

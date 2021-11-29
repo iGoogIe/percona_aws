@@ -23,12 +23,6 @@
     - bootstrap
     - never
 
-# - name: Stage Certs and Add to mysqld.cnf
-#   import_tasks: stage_certs.yml
-#   tags:
-#     - certs
-#     - never
-
 - name: Import db_post_install
   import_tasks: bootstrap/db_post_install.yml
   tags:
@@ -85,8 +79,20 @@
     - cleanup
     - never
 
-# - name: test
-#   import_tasks: test.yml
-#   tags:
-#     - test
-#     - never 
+- name: Import stop mysql services
+  import_tasks: stop/stop_services.yml
+  tags:
+    - stop_mysql
+    - never
+
+- name: Import stop ec2s
+  import_tasks: aws/stop_ec2s.yml
+  tags:
+    - stop_ec2s
+    - never
+
+- name: Import start ec2s
+  import_tasks: aws/start_ec2s.yml
+  tags:
+    - start_ec2s
+    - never

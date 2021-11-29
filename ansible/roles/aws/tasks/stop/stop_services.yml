@@ -1,0 +1,6 @@
+---
+  - name: Stop MySQL to prepare for EC2 STOP
+    become: yes
+    service:
+      name: mysql
+      state: stopped

@@ -22,6 +22,17 @@
     register: bootstrap_result
     when: inventory_hostname == 'node1'
 
+  - name: Mark node1 safe to bootstrap (for stop/start compatibility)
+    become: yes
+    ansible.builtin.lineinfile:
+      path: /var/lib/mysql/grastate.dat
+      regexp: "^safe_to_bootstrap"
+      line: "safe_to_bootstrap: 1"
+      owner: mysql
+      group: mysql
+      mode: '0640'
+    when: inventory_hostname == 'node1'
+
   - name: Set Fact for comma delimited Private IPs
     set_fact:
       string_of_ips: "{{private_ips | join(',')}}"
